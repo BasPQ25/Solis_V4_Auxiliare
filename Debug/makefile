@@ -1,6 +1,6 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
-# Toolchain: GNU Tools for STM32 (11.3.rel1)
+# Toolchain: GNU Tools for STM32 (12.3.rel1)
 ################################################################################
 
 -include ../makefile.init
@@ -60,8 +60,8 @@ all: main-build
 main-build: SOLIS_V4_AUXILIARE_V1.elf secondary-outputs
 
 # Tool invocations
-SOLIS_V4_AUXILIARE_V1.elf SOLIS_V4_AUXILIARE_V1.map: $(OBJS) $(USER_OBJS) C:\Users\User\STM32CubeIDE\workspace_1.14.1\SOLIS_V4_AUXILIARE_V1\STM32F303CBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "SOLIS_V4_AUXILIARE_V1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\User\STM32CubeIDE\workspace_1.14.1\SOLIS_V4_AUXILIARE_V1\STM32F303CBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SOLIS_V4_AUXILIARE_V1.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+SOLIS_V4_AUXILIARE_V1.elf SOLIS_V4_AUXILIARE_V1.map: $(OBJS) $(USER_OBJS) C:\Users\User\Desktop\AUX_Solis_V4\STM32F303CBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "SOLIS_V4_AUXILIARE_V1.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\User\Desktop\AUX_Solis_V4\STM32F303CBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SOLIS_V4_AUXILIARE_V1.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

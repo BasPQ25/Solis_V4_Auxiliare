@@ -42,6 +42,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+ADC_HandleTypeDef hadc4;
+
 CAN_HandleTypeDef hcan;
 
 TIM_HandleTypeDef htim2;
@@ -55,13 +57,13 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_ADC4_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
 
 /* USER CODE END 0 */
 
@@ -71,8 +73,8 @@ static void MX_TIM2_Init(void);
   */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
 
+  /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
 
@@ -96,6 +98,7 @@ int main(void)
   MX_GPIO_Init();
   MX_CAN_Init();
   MX_TIM2_Init();
+  MX_ADC4_Init();
   /* USER CODE BEGIN 2 */
   HAL_Delay(2000); // asteptare pentru configurarea celorlalte sisteme, daca e nevoie
 
@@ -133,6 +136,7 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
@@ -162,6 +166,69 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC34;
+  PeriphClkInit.Adc34ClockSelection = RCC_ADC34PLLCLK_DIV1;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+/**
+  * @brief ADC4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC4_Init(void)
+{
+
+  /* USER CODE BEGIN ADC4_Init 0 */
+
+  /* USER CODE END ADC4_Init 0 */
+
+  ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC4_Init 1 */
+
+  /* USER CODE END ADC4_Init 1 */
+
+  /** Common config
+  */
+  hadc4.Instance = ADC4;
+  hadc4.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc4.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc4.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc4.Init.ContinuousConvMode = DISABLE;
+  hadc4.Init.DiscontinuousConvMode = DISABLE;
+  hadc4.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc4.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc4.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc4.Init.NbrOfConversion = 1;
+  hadc4.Init.DMAContinuousRequests = DISABLE;
+  hadc4.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc4.Init.LowPowerAutoWait = DISABLE;
+  hadc4.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
+  if (HAL_ADC_Init(&hadc4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_4;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SingleDiff = ADC_SINGLE_ENDED;
+  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  sConfig.OffsetNumber = ADC_OFFSET_NONE;
+  sConfig.Offset = 0;
+  if (HAL_ADC_ConfigChannel(&hadc4, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC4_Init 2 */
+
+  /* USER CODE END ADC4_Init 2 */
+
 }
 
 /**
@@ -279,11 +346,11 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, FEEDBACK_LED_UNUSED_Pin|FEEDBACK_LED2_UNUSED_Pin|FAN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, FEEDBACK_LED_UNUSED_Pin|FEEDBACK_LED2_UNUSED_Pin|FAN_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, SIGN_LEFT_Pin|SIGN_RIGHT_Pin|BRAKE_Pin|BACK_LIGHT_Pin
-                          |FRONT_LIGHT_Pin|CAMERA_Pin|HORN_Pin, GPIO_PIN_RESET);
+                          |FRONT_LIGHT_Pin|CAMERA_Pin|HORN_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pins : FEEDBACK_LED_UNUSED_Pin FEEDBACK_LED2_UNUSED_Pin FAN_Pin */
   GPIO_InitStruct.Pin = FEEDBACK_LED_UNUSED_Pin|FEEDBACK_LED2_UNUSED_Pin|FAN_Pin;
@@ -301,10 +368,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : CURENT_SENSOR_Pin FRONT_LIGHT_OFFLINE_MODE_Pin RESERVE_OFFLINE_MODE_Pin CAMERA_OFFLINE_MODE_Pin
-                           HORN_OFFLINE_MODE_Pin SIGN_RIGHT_OFFLINE_MODE_Pin FAN_OFFLINE_MODE_Pin SIGN_LEFT_OFFLINE_MODE_Pin */
-  GPIO_InitStruct.Pin = CURENT_SENSOR_Pin|FRONT_LIGHT_OFFLINE_MODE_Pin|RESERVE_OFFLINE_MODE_Pin|CAMERA_OFFLINE_MODE_Pin
-                          |HORN_OFFLINE_MODE_Pin|SIGN_RIGHT_OFFLINE_MODE_Pin|FAN_OFFLINE_MODE_Pin|SIGN_LEFT_OFFLINE_MODE_Pin;
+  /*Configure GPIO pins : FRONT_LIGHT_OFFLINE_MODE_Pin RESERVE_OFFLINE_MODE_Pin CAMERA_OFFLINE_MODE_Pin HORN_OFFLINE_MODE_Pin
+                           SIGN_RIGHT_OFFLINE_MODE_Pin FAN_OFFLINE_MODE_Pin SIGN_LEFT_OFFLINE_MODE_Pin */
+  GPIO_InitStruct.Pin = FRONT_LIGHT_OFFLINE_MODE_Pin|RESERVE_OFFLINE_MODE_Pin|CAMERA_OFFLINE_MODE_Pin|HORN_OFFLINE_MODE_Pin
+                          |SIGN_RIGHT_OFFLINE_MODE_Pin|FAN_OFFLINE_MODE_Pin|SIGN_LEFT_OFFLINE_MODE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);

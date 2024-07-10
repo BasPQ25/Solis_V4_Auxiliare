@@ -11,24 +11,26 @@
 void Update_Aux_State(void);
 void Update_Buttons_State_Offline_Mode(void);
 void Can_Transmit_Auxiliary_Activity_Check(void);
+void Get_Adc_Value(ADC_HandleTypeDef hadc4);
 
-#define DASHBOARD_ID 0x333
-#define SAFE_STATE 0xFF
+#define DASHBOARD_ID 0x510
+#define SAFE_STATE 0x00
 
 typedef union
 {
 	uint8_t state;
 	struct
 	{
-		uint8_t horn : 1;
 		uint8_t sign_left : 1;
 		uint8_t sign_right : 1;
+		uint8_t fan : 1;
+		uint8_t brake : 1;
+		uint8_t horn : 1;
 		uint8_t avarie : 1;
 		uint8_t camera : 1;
 		uint8_t faruri : 1;
-		uint8_t brake : 1;
-		uint8_t fan : 1;
 	};
+
 }aux_state;
 
 typedef enum

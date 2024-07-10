@@ -54,9 +54,12 @@
 /* USER CODE BEGIN 0 */
 extern CAN_HandleTypeDef hcan;
 extern TIM_HandleTypeDef htim2;
+extern ADC_HandleTypeDef hadc4;
 
 extern aux_state* auxiliary;
 extern aux_state* Offline_Mode;
+
+extern int adc_value;
 
 uint8_t Dash_Activity = 0;
 
@@ -236,7 +239,7 @@ void USB_LP_CAN_RX0_IRQHandler(void)
 /**
   * @brief This function handles TIM2 global interrupt.
   */
-void TIM2_IRQHandler(void) // 50ms
+void TIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM2_IRQn 0 */
 
@@ -244,9 +247,11 @@ void TIM2_IRQHandler(void) // 50ms
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
 
-   Offline_Mode_Switch = HAL_GPIO_ReadPin(GPIOA, ENABLE_OFFLINE_MODE_Pin);
 
-   if(Dash_Activity <= 100 && Offline_Mode_Switch == OFF) // 5 secunde daca Dnu se trimite niciun semnal de CAN
+  Offline_Mode_Switch = HAL_GPIO_ReadPin(GPIOA, ENABLE_OFFLINE_MODE_Pin);
+
+
+   if(Dash_Activity <= 100 && Offline_Mode_Switch == OFF) // 5 secunde daca nu se trimite niciun semnal de CAN
    {
 	  Dash_Activity++;
    }
@@ -261,6 +266,7 @@ void TIM2_IRQHandler(void) // 50ms
 	   Update_Buttons_State_Offline_Mode();
 	   auxiliary->state = Offline_Mode->state;
    }
+
 
    Update_Aux_State();
 
