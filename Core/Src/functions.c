@@ -22,6 +22,7 @@ extern CAN_HandleTypeDef hcan;
 
 void Update_Aux_State()
 {
+	//iesire sunt negate - Tranzistori tip P
 		//avarie
 		if( auxiliary->avarie == ON && Toggle_State_Left == Toggle_State_Right )
 			{
