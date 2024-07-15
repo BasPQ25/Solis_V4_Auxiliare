@@ -117,6 +117,7 @@ void Get_Adc_Value( ADC_HandleTypeDef hadc4 , aux_state* auxiliary,
 
 	uint8_t Error_Mask = 0x01;
 	uint32_t Total_current = 0;
+	uint8_t Unit = 0;
 
 
 
@@ -135,7 +136,7 @@ void Get_Adc_Value( ADC_HandleTypeDef hadc4 , aux_state* auxiliary,
     	  //Sum everything that is ON
     	  	  for(int i = 0; i < 8 ; i++)
     	  	  {
-    	  		  Total_current += ( auxiliary->state && Error_Mask ) * *( (uint32_t*)Aux_Map + i);
+    	  		  Total_current += ( Unit = (auxiliary->state && Error_Mask) ? 1 : 0 ) * *( (uint32_t*)Aux_Map + i);
     	  		  Error_Mask = Error_Mask << 1;
     	  	  }
 
