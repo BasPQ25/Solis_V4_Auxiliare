@@ -1,26 +1,10 @@
 
 #include "functions.h"
 
-aux_state aux = {.state = 0x00};
-aux_state* auxiliary = &aux;
 
-aux_state Offline = {.state = 0x00};
-aux_state* Offline_Mode = &Offline;
-
-
-//Auxiliary state switch variables
-static bool Toggle_State_Right = OFF;
-static bool Toggle_State_Left = OFF;
-
-static uint8_t Sign_Left_500ms_Timer = 0; // numaram pana la 10 ca sa avem 500ms intre toggle, STANDARD SEMNALIZARI
-static uint8_t Sign_Right_500ms_Timer = 0;
-
-
-int adc_value = 0;
-
-extern CAN_HandleTypeDef hcan;
-
-void Update_Aux_State()
+void Update_Aux_State( aux_state* auxiliary ,
+					   bool Toggle_State_Right , bool Toggle_State_Left,
+					   uint8_t Sign_Left_500ms_Timer, uint8_t Sign_Right_500ms_Timer )
 {
 	//iesire sunt negate - Tranzistori tip P
 		//avarie
@@ -78,7 +62,8 @@ void Update_Aux_State()
 
 
 }
-void Update_Buttons_State_Offline_Mode()
+
+void Update_Buttons_State_Offline_Mode(aux_state* Offline_Mode)
 {
 	Offline_Mode->brake = HAL_GPIO_ReadPin(GPIOA, BRAKE_OFFLINE_MODE_Pin);
 	Offline_Mode->camera = HAL_GPIO_ReadPin(GPIOB, CAMERA_OFFLINE_MODE_Pin);
@@ -101,17 +86,39 @@ void Update_Buttons_State_Offline_Mode()
 	}
 	else Offline_Mode->faruri = OFF;
 }
-void Can_Transmit_Auxiliary_Activity_Check() //trimite mesaj la 50ms la dash
+
+void Can_Transmit_Auxiliary_Activity_Check(CAN_HandleTypeDef hcan, uint8_t* Activity_Check) //trimite mesaj la 50ms la dash
 {
 
-	static const CAN_TxHeaderTypeDef TxHeader = {0x103, 0x00, CAN_RTR_DATA, CAN_ID_STD, 1, DISABLE };
-	static const uint8_t Activity_Check[1] = {0xFF};
+	static const CAN_TxHeaderTypeDef TxHeader = {AUXILIARY_ID, 0x00, CAN_RTR_DATA, CAN_ID_STD, 1, DISABLE };
+
 	static uint32_t TxMailBox;
 
 	HAL_CAN_AddTxMessage(&hcan, &TxHeader, Activity_Check, &TxMailBox);
 }
-/*void Get_Adc_Value(ADC_HandleTypeDef hadc4)
+
+void Get_Adc_Value( ADC_HandleTypeDef hadc4 , aux_state* auxiliary,
+					bool Toggle_State_Right , bool Toggle_State_Left,
+					uint32_t adc_value, uint8_t* Activity_Check)
 {
+
+	static Aux_Error Auxiliary_Error_Mapping = { .Sign_Right_Current = 0,
+												 .Sign_Left_Current = 0,
+												 .Avarie_Current = 0,
+												 .Horn_Current = 0 ,
+												 .Faruri_Current = 0,
+												 .Fan_Current = 0,
+												 .Camera_Current = 0,
+												 .Brake_Current = 0,
+											    };
+
+	static Aux_Error* Aux_Map  = &Auxiliary_Error_Mapping;
+	static uint8_t Tolerance = 100; // units
+
+	uint8_t Error_Mask = 0x01;
+	uint32_t Total_current = 0;
+
+
 
       if(    (auxiliary->sign_left == ON && Toggle_State_Left == ON )
     	  || (auxiliary->sign_right == ON && Toggle_State_Right == ON)
@@ -119,14 +126,29 @@ void Can_Transmit_Auxiliary_Activity_Check() //trimite mesaj la 50ms la dash
 		  || (auxiliary->sign_left == OFF && auxiliary->sign_right == OFF && auxiliary->avarie == OFF) )
 
       {
-    	  HAL_ADC_Start(&hadc4);
+    	  //ADC conversion Sequence
+    	  	  HAL_ADC_Start(&hadc4);
+    	  	  HAL_ADC_PollForConversion(&hadc4, HAL_MAX_DELAY);
+    	  	  adc_value = HAL_ADC_GetValue(&hadc4);
+    	  	  HAL_ADC_Stop(&hadc4);
 
-    	  HAL_ADC_PollForConversion(&hadc4, HAL_MAX_DELAY);
+    	  //Sum everything that is ON
+    	  	  for(int i = 0; i < 8 ; i++)
+    	  	  {
+    	  		  Total_current += ( auxiliary->state && Error_Mask ) * *( (uint32_t*)Aux_Map + i);
+    	  		  Error_Mask = Error_Mask << 1;
+    	  	  }
 
-    	  adc_value = HAL_ADC_GetValue(&hadc4);
+    	  	//in 0 ai valoarea 2035 - 1.64V = 0 A.
+    	  	//se aduna cu 328 - 1A
+    	  	  	  if(Total_current - Tolerance <= adc_value && adc_value <= Total_current + Tolerance)
+    	  	  	  {
+    	  	  		  Activity_Check[0] =  AUXILIARY_WORKS;
+    	  	  	  }
+    	  	  	  else Activity_Check[0] = AUXILIARY_ERROR;
 
-    	  HAL_ADC_Stop(&hadc4);
       }
+
 }
-*/
+
 

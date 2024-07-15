@@ -1,3 +1,4 @@
-../Core/Src/functions.c:23:6:Update_Aux_State	8	static
-../Core/Src/functions.c:81:6:Update_Buttons_State_Offline_Mode	8	static
-../Core/Src/functions.c:104:6:Can_Transmit_Auxiliary_Activity_Check	8	static
+../Core/Src/functions.c:5:6:Update_Aux_State	16	static
+../Core/Src/functions.c:66:6:Update_Buttons_State_Offline_Mode	16	static
+../Core/Src/functions.c:90:6:Can_Transmit_Auxiliary_Activity_Check	8	static
+../Core/Src/functions.c:100:6:Get_Adc_Value	24	static
