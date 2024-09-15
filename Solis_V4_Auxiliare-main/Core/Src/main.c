@@ -48,6 +48,7 @@ CAN_HandleTypeDef hcan;
 
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim4;
 
 /* USER CODE BEGIN PV */
 
@@ -60,6 +61,7 @@ static void MX_CAN_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_ADC4_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_TIM4_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -102,13 +104,18 @@ int main(void)
   MX_TIM2_Init();
   MX_ADC4_Init();
   MX_TIM3_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   HAL_Delay(2000); // asteptare pentru configurarea celorlalte sisteme, daca e nevoie
 
   HAL_CAN_Start(&hcan);
 
-  HAL_TIM_Base_Start_IT(&htim2); //56ms
+
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+
+  HAL_TIM_Base_Start_IT(&htim4); //56ms
   HAL_TIM_Base_Start_IT(&htim3); // 76ms
+
   HAL_Delay(90); // ca sa se faca odata functia Update_State cu 0x00 pentru a regla semnalizarile (TOGGLE_STATE-urile)
 
   HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
@@ -302,6 +309,7 @@ static void MX_TIM2_Init(void)
 
   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
 
   /* USER CODE BEGIN TIM2_Init 1 */
 
@@ -309,7 +317,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 7199;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 566;
+  htim2.Init.Period = 100;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -321,15 +329,29 @@ static void MX_TIM2_Init(void)
   {
     Error_Handler();
   }
+  if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
   {
     Error_Handler();
   }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 25;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  __HAL_TIM_DISABLE_OCxPRELOAD(&htim2, TIM_CHANNEL_4);
   /* USER CODE BEGIN TIM2_Init 2 */
 
   /* USER CODE END TIM2_Init 2 */
+  HAL_TIM_MspPostInit(&htim2);
 
 }
 
@@ -379,6 +401,51 @@ static void MX_TIM3_Init(void)
 }
 
 /**
+  * @brief TIM4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM4_Init(void)
+{
+
+  /* USER CODE BEGIN TIM4_Init 0 */
+
+  /* USER CODE END TIM4_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM4_Init 1 */
+
+  /* USER CODE END TIM4_Init 1 */
+  htim4.Instance = TIM4;
+  htim4.Init.Prescaler = 7199;
+  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim4.Init.Period = 565;
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM4_Init 2 */
+
+  /* USER CODE END TIM4_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -395,23 +462,29 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, FEEDBACK_LED_UNUSED_Pin|FEEDBACK_LED2_UNUSED_Pin|FAN_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, FEEDBACK_LED_UNUSED_Pin|FEEDBACK_LED2_UNUSED_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, CAMERA_Pin|FAN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, SIGN_LEFT_Pin|SIGN_RIGHT_Pin|BRAKE_Pin|BACK_LIGHT_Pin
-                          |FRONT_LIGHT_Pin|CAMERA_Pin|HORN_Pin, GPIO_PIN_SET);
+                          |HORN_Pin, GPIO_PIN_SET);
 
-  /*Configure GPIO pins : FEEDBACK_LED_UNUSED_Pin FEEDBACK_LED2_UNUSED_Pin FAN_Pin */
-  GPIO_InitStruct.Pin = FEEDBACK_LED_UNUSED_Pin|FEEDBACK_LED2_UNUSED_Pin|FAN_Pin;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(SAFE_STATE_SIGNAL_GPIO_Port, SAFE_STATE_SIGNAL_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : FEEDBACK_LED_UNUSED_Pin FEEDBACK_LED2_UNUSED_Pin CAMERA_Pin FAN_Pin */
+  GPIO_InitStruct.Pin = FEEDBACK_LED_UNUSED_Pin|FEEDBACK_LED2_UNUSED_Pin|CAMERA_Pin|FAN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : SIGN_LEFT_Pin SIGN_RIGHT_Pin BRAKE_Pin BACK_LIGHT_Pin
-                           FRONT_LIGHT_Pin CAMERA_Pin HORN_Pin */
+                           SAFE_STATE_SIGNAL_Pin HORN_Pin */
   GPIO_InitStruct.Pin = SIGN_LEFT_Pin|SIGN_RIGHT_Pin|BRAKE_Pin|BACK_LIGHT_Pin
-                          |FRONT_LIGHT_Pin|CAMERA_Pin|HORN_Pin;
+                          |SAFE_STATE_SIGNAL_Pin|HORN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

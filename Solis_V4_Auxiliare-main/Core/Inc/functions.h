@@ -7,7 +7,7 @@
 
 #define DASHBOARD_ID 0x701
 #define AUXILIARY_ID 0x700
-#define SAFE_STATE 0x00
+#define SAFE_STATE 0xFF
 
 #define AUXILIARY_WORKS 0xFF
 #define AUXILIARY_ERROR 0x00
@@ -46,7 +46,7 @@ typedef enum
     ON
 } bool;
 
-void Update_Aux_State(aux_state* auxiliary, bool Toggle_State_Right, bool Toggle_State_Left, uint8_t Sign_Left_500ms_Timer, uint8_t Sign_Right_500ms_Timer);
+void Update_Aux_State(aux_state* auxiliary);
 
 void Update_Buttons_State_Offline_Mode(aux_state* Offline_Mode);
 

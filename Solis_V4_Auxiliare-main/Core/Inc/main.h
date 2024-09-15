@@ -49,6 +49,8 @@ extern "C" {
 
 /* USER CODE END EM */
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
@@ -61,6 +63,8 @@ void Error_Handler(void);
 #define FEEDBACK_LED_UNUSED_GPIO_Port GPIOA
 #define FEEDBACK_LED2_UNUSED_Pin GPIO_PIN_2
 #define FEEDBACK_LED2_UNUSED_GPIO_Port GPIOA
+#define CAMERA_Pin GPIO_PIN_6
+#define CAMERA_GPIO_Port GPIOA
 #define FAN_Pin GPIO_PIN_7
 #define FAN_GPIO_Port GPIOA
 #define SIGN_LEFT_Pin GPIO_PIN_0
@@ -73,8 +77,8 @@ void Error_Handler(void);
 #define BACK_LIGHT_GPIO_Port GPIOB
 #define FRONT_LIGHT_Pin GPIO_PIN_11
 #define FRONT_LIGHT_GPIO_Port GPIOB
-#define CAMERA_Pin GPIO_PIN_12
-#define CAMERA_GPIO_Port GPIOB
+#define SAFE_STATE_SIGNAL_Pin GPIO_PIN_12
+#define SAFE_STATE_SIGNAL_GPIO_Port GPIOB
 #define HORN_Pin GPIO_PIN_13
 #define HORN_GPIO_Port GPIOB
 #define SENZOR_CURENT_Pin GPIO_PIN_14
