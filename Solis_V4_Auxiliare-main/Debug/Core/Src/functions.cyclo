@@ -1,3 +1,2 @@
-../Core/Src/functions.c:5:6:Update_Aux_State	12
-../Core/Src/functions.c:68:6:Update_Buttons_State_Offline_Mode	3
-../Core/Src/functions.c:93:6:Can_Transmit_Auxiliary_Activity_Check	1
+../Core/Src/functions.c:5:6:Update_Aux_State	15
+../Core/Src/functions.c:75:6:Update_Buttons_State_Offline_Mode	3

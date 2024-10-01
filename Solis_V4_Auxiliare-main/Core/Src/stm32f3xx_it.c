@@ -270,12 +270,6 @@ void TIM3_IRQHandler(void)
   //Update auxiliary state based on TIM3 logic
     	  Update_Aux_State( auxiliary );
 
-  //Check if Auxiliary works just as planned
-    	  //Get_Adc_Value( hadc4 , auxiliary, Toggle_State_Right , Toggle_State_Left,  adc_Value, Activity_Check);
-
-  //Transmit Activity Check CAN frame
-    	  //Can_Transmit_Auxiliary_Activity_Check( hcan , Activity_Check );
-
   /* USER CODE END TIM3_IRQn 1 */
 }
 
@@ -293,8 +287,8 @@ void TIM4_IRQHandler(void)
       	  Offline_Mode_Switch = HAL_GPIO_ReadPin(GPIOA, ENABLE_OFFLINE_MODE_Pin);
 
       //Dashboard CAN works
-      	  if(Dash_Activity <= 100 && Offline_Mode_Switch == OFF) // 5.6 secunde daca nu se trimite niciun semnal de CAN
-      	   {
+      	  if(Dash_Activity <= 100 && Offline_Mode_Switch == OFF)
+      	  {
       		  Dash_Activity++;
       	   }
       //Dashboard CAN does not work

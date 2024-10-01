@@ -9,4 +9,4 @@
 ../Core/Src/stm32f3xx_it.c:213:6:SysTick_Handler	1
 ../Core/Src/stm32f3xx_it.c:234:6:USB_LP_CAN_RX0_IRQHandler	2
 ../Core/Src/stm32f3xx_it.c:262:6:TIM3_IRQHandler	1
-../Core/Src/stm32f3xx_it.c:285:6:TIM4_IRQHandler	6
+../Core/Src/stm32f3xx_it.c:279:6:TIM4_IRQHandler	6
